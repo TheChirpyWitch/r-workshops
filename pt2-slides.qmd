@@ -1,0 +1,718 @@
+---
+title: "R & RStudio for Researchers"
+subtitle: "Workshop Pt. 2: wrangling, figures, statistics and reports"
+author: "Vrinda Malhotra"
+date: today
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    slide-number: c/t
+    progress: true
+    hash-type: number
+    navigation-mode: linear
+    code-line-numbers: false
+    code-copy: true
+    highlight-style: github
+    width: 1280
+    height: 720
+    footer: "R & RStudio for Researchers · Pt. 2"
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(palmerpenguins)
+library(broom)
+library(emmeans)
+theme_set(theme_classic(base_size = 18))
+options(width = 80, pillar.print_min = 5)
+```
+
+## Today
+
+| Segment | Topic | Time |
+|---|---|---|
+| Recap | Pt. 1 in five minutes | 5 min |
+| Part 1 | Wrangling: reshaping and summarising data | 30 min |
+| Part 2 | Figures with ggplot2 | 30 min |
+| Part 3 | Statistics: t-test, ANOVA, regression | 35 min |
+| Part 4 | Reproducible reports with Quarto | 15 min |
+| Wrap-up | Take-home project, questions | 5 min |
+
+::: {.muted .small}
+All of today's code in one file: [pt2-code.R](pt2-code.R){download="pt2-code.R"}
+:::
+
+# Recap: Pt. 1 in five minutes {background-color="#006633" .section-slide}
+
+5 minutes
+
+## Start-up
+
+Open your project by double-clicking the `.Rproj` file, then run:
+
+```{r}
+#| eval: false
+library(tidyverse)
+library(palmerpenguins)
+library(here)
+library(broom)     # new today: tidy model results
+library(emmeans)   # new today: group comparisons
+```
+
+::: {.live}
+→ Check: does `getwd()` show your project folder?
+:::
+
+::: notes
+Anyone who missed Pt. 1 or lost their project: create a new project now (File → New Project) and install packages from the Pt. 1 code file while we recap.
+:::
+
+## Quick check [3 min]{.timer}
+
+::: {.exercise}
+1. What does `x <- 5` do?
+2. In `mean(x, na.rm = TRUE)`, what is the function and what are the arguments?
+3. If `temps <- c(18, 25, 31)`, what does `temps[temps > 24]` give?
+:::
+
+. . .
+
+1. Stores the value 5 under the name `x`
+2. Function `mean`; arguments `x` and `na.rm = TRUE`
+3. `25 31`: the values where the condition is `TRUE`
+
+## A data frame is a table of vectors
+
+Each **column** is a vector, like the ones you made in Pt. 1. Each **row** is one observation.
+
+```{r}
+#| output-location: column
+penguins$body_mass_g[1:6]
+
+mean(penguins$body_mass_g, na.rm = TRUE)
+```
+
+<br>
+
+`$` pulls one column out of a table: `table$column`. Today you'll mostly refer to columns **by name** inside functions instead.
+
+# Part 1: Wrangling data {background-color="#006633" .section-slide}
+
+30 minutes
+
+## The pipe `|>`: "and then"
+
+Most analyses are a chain of steps. There are two ways to write a chain:
+
+| | Nested: read inside out | Piped: read left to right |
+|---|---|---|
+| **Math** | g(f(x)) | x → f → g |
+| **Everyday** | bake(mix(sift(flour))) | take flour, **and then** sift, **and then** mix, **and then** bake |
+| **R** | `round(mean(c(1.2, 5.7)), 1)` | `c(1.2, 5.7) |> mean() |> round(1)` |
+
+: {tbl-colwidths="[14,43,43]"}
+
+<br>
+
+`|>` passes the result on the left into the first argument of the function on the right. Shortcut: **Ctrl+Shift+M** / **Cmd+Shift+M**.
+
+::: notes
+If the shortcut types %>% instead: Tools → Global Options → Code → tick "Use native pipe operator". %>% works the same way for today's purposes.
+:::
+
+## Five verbs do most of the work
+
+| Verb | What it does | Spreadsheet equivalent |
+|---|---|---|
+| `filter()` | Keep rows that meet a condition | Filter menu |
+| `select()` | Keep or drop columns | Hide columns |
+| `arrange()` | Sort rows | Sort button |
+| `mutate()` | Add or change a column | New column with a formula, filled down |
+| `summarise()` | Collapse rows into a summary | Pivot table |
+
+<br>
+
+Each one takes a data frame in and gives a data frame back, so they chain together with `|>`.
+
+## `filter()`: keep rows
+
+Uses the **conditions** from Pt. 1. A comma means "and".
+
+```{r}
+penguins |>
+  filter(species == "Gentoo", body_mass_g > 5800)
+```
+
+## `select()` and `arrange()`: choose columns, sort rows
+
+```{r}
+penguins |>
+  select(species, island, body_mass_g) |>
+  arrange(desc(body_mass_g))       # desc() = largest first
+```
+
+::: {.small .muted}
+R shows the first few rows and tells you how many more there are.
+:::
+
+## `mutate()`: add a column
+
+Like typing a formula in a new spreadsheet column and filling it down.
+
+```{r}
+penguins |>
+  mutate(mass_kg = body_mass_g / 1000) |>
+  select(species, body_mass_g, mass_kg)
+```
+
+## `group_by()` + `summarise()`: the pivot table
+
+```{=html}
+<div class="flow">
+  <div class="box">344 penguins<span class="lbl">one table</span></div>
+  <div class="arrow">→</div>
+  <div class="box fn">group_by(species)<span class="lbl">split</span></div>
+  <div class="arrow">→</div>
+  <div class="box fn">summarise(…)<span class="lbl">summarise each group</span></div>
+  <div class="arrow">→</div>
+  <div class="box">3 rows<span class="lbl">one per species</span></div>
+</div>
+```
+
+```{r}
+penguins |>
+  group_by(species) |>
+  summarise(n = n(),
+            mean_g = mean(body_mass_g, na.rm = TRUE),
+            sd_g = sd(body_mass_g, na.rm = TRUE))
+```
+
+## Exercise: wrangle [5 min]{.timer}
+
+::: {.exercise}
+1. Keep only penguins from **Dream** island.
+2. Add a column `bill_ratio` = bill length ÷ bill depth.
+3. Find the mean `bill_ratio` per species, highest first.
+:::
+
+. . .
+
+```{r}
+#| output-location: column
+penguins |>
+  filter(island == "Dream") |>
+  mutate(bill_ratio =
+    bill_length_mm / bill_depth_mm) |>
+  group_by(species) |>
+  summarise(mean_ratio =
+    mean(bill_ratio, na.rm = TRUE)) |>
+  arrange(desc(mean_ratio))
+```
+
+## Reshape: wide to long
+
+Remember tidy data from Pt. 1? `pivot_longer()` fixes data with a variable hidden in the column names.
+
+```{r}
+#| include: false
+scores <- tibble(id = 1:2, week1 = c(5.1, 4.8), week2 = c(5.6, 5.0))
+```
+
+:::: {.columns}
+::: {.column width="45%"}
+```{r}
+scores
+```
+:::
+::: {.column width="55%"}
+```{r}
+scores |>
+  pivot_longer(c(week1, week2),
+               names_to = "week",
+               values_to = "score")
+```
+:::
+::::
+
+::: {.small .muted}
+`pivot_wider()` goes the other way.
+:::
+
+## Cleaning messy column names
+
+Real exports have names like `"Body Mass (g)"`, which are awkward to type. `clean_names()` from the **janitor** package fixes them all at once.
+
+```{r}
+names(penguins_raw)[10:13]
+```
+
+```{r}
+clean <- janitor::clean_names(penguins_raw)
+names(clean)[10:13]
+```
+
+::: {.small .muted}
+`janitor::clean_names()` means "the `clean_names` function from the janitor package", without loading the whole package with `library()`.
+:::
+
+# Part 2: Figures with ggplot2 {background-color="#006633" .section-slide}
+
+30 minutes
+
+## A plot is three choices
+
+Describe a chart to a colleague and you've already written it:
+
+> "Using the **penguins** data, put **flipper length** on the x-axis and **body mass** on the y-axis, colour by **species**, and draw **points**."
+
+| Choice | In the sentence | In ggplot2 |
+|---|---|---|
+| **Data** | the penguins data | `ggplot(penguins, …)` |
+| **Aesthetics**: which column goes where | flipper length on x, mass on y, colour by species | `aes(x = …, y = …, colour = …)` |
+| **Geometry**: what shape to draw | points | `geom_point()` |
+
+: {tbl-colwidths="[30,40,30]"}
+
+## Build it up: 1. data and axes
+
+```{r}
+#| output-location: column
+#| fig-width: 6
+#| fig-height: 4.5
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g))
+```
+
+<br>
+
+Axes, but nothing drawn yet: we haven't chosen a geometry.
+
+## Build it up: 2. add points
+
+```{r}
+#| output-location: column
+#| fig-width: 6
+#| fig-height: 4.5
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g)) +
+  geom_point()
+```
+
+<br>
+
+Layers are added with **`+`**, not `|>`. Mixing them up is a common slip.
+
+## Build it up: 3. colour and labels
+
+```{r}
+#| output-location: column
+#| fig-width: 6
+#| fig-height: 4.5
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g,
+           colour = species)) +
+  geom_point(alpha = 0.7) +
+  labs(x = "Flipper length (mm)",
+       y = "Body mass (g)",
+       colour = NULL) +
+  theme(legend.position = "top")
+```
+
+## Which plot for which question?
+
+| Question | Geometry |
+|---|---|
+| How do two measurements relate? | `geom_point()`, plus `geom_smooth(method = "lm")` for a trend line |
+| How is one measurement spread across groups? | `geom_boxplot()` with `geom_jitter()` on top |
+| How does something change over time? | `geom_line()` |
+| How many in each category? | `geom_bar()` |
+| What does one measurement's distribution look like? | `geom_histogram()` |
+
+## Show the data, not just the average
+
+A bar of means hides how many points there are and how they're spread. Show them.
+
+```{r}
+#| output-location: column
+#| fig-width: 6
+#| fig-height: 4.5
+ggplot(penguins,
+       aes(x = species,
+           y = body_mass_g)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15,
+              alpha = 0.4) +
+  labs(x = NULL,
+       y = "Body mass (g)")
+```
+
+## Small multiples: one panel per group
+
+```{r}
+#| output-location: column
+#| fig-width: 6.5
+#| fig-height: 4.5
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g,
+           colour = species)) +
+  geom_point(alpha = 0.7) +
+  facet_wrap(~ island) +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+`facet_wrap(~ island)`: "one panel for each island". Often clearer than many colours on one panel.
+
+## Save figures from code
+
+```{r}
+#| eval: false
+my_plot <- ggplot(penguins, aes(flipper_length_mm, body_mass_g)) +
+  geom_point()
+
+ggsave(here("figures", "fig1.pdf"), my_plot,
+       width = 85, height = 70, units = "mm")       # vector: sharp at any size
+
+ggsave(here("figures", "fig1.png"), my_plot,
+       width = 85, height = 70, units = "mm", dpi = 600)
+```
+
+<br>
+
+- Saving from code records the size and resolution, so the figure is identical every time.
+- Journals often want single-column figures 85–90 mm wide and double-column 170–180 mm. Check your journal's guide.
+
+## Exercise: plot [5 min]{.timer}
+
+::: {.exercise}
+1. Make a boxplot of **bill depth** by species, with the points on top.
+2. Then give each **sex** its own panel. First drop missing sex with `filter()`. Hint: `!` means NOT, so `!is.na(sex)` is TRUE when sex is **not** missing.
+:::
+
+. . .
+
+```{r}
+#| output-location: column
+#| fig-width: 6.5
+#| fig-height: 3.4
+penguins |>
+  filter(!is.na(sex)) |>
+  ggplot(aes(x = species,
+             y = bill_depth_mm)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.4) +
+  facet_wrap(~ sex) +
+  labs(x = NULL, y = "Bill depth (mm)")
+```
+
+# Part 3: Statistics {background-color="#006633" .section-slide}
+
+35 minutes
+
+## Formulas: "explained by"
+
+R's statistics functions describe a model with `~`, read as **"explained by"**.
+
+| | Example |
+|---|---|
+| **Math** | y = f(x): y depends on x |
+| **Everyday** | "Does body mass depend on species?" |
+| **R** | `body_mass_g ~ species` |
+
+: {tbl-colwidths="[20,80]"}
+
+<br>
+
+| Formula | Meaning |
+|---|---|
+| `y ~ x` | y explained by x |
+| `y ~ x1 + x2` | y explained by x1 and x2 together |
+| `y ~ x1 * x2` | the same, plus: does the effect of x1 depend on x2? (interaction) |
+
+## Which test?
+
+| Question | Test | R function |
+|---|---|---|
+| Do **two** groups differ on average? | t-test | `t.test(y ~ group)` |
+| Do **three or more** groups differ? | ANOVA | `aov(y ~ group)` |
+| How does y change with x, accounting for other variables? | Linear regression | `lm(y ~ x1 + x2)` |
+
+<br>
+
+All three take a formula and `data =`, so once you can write one, you can write them all.
+
+## t-test: do male and female Adelie differ in mass?
+
+```{r}
+adelie <- penguins |> filter(species == "Adelie", !is.na(sex))
+
+t.test(body_mass_g ~ sex, data = adelie)
+```
+
+::: notes
+R uses Welch's t-test by default, which doesn't assume equal variances. That's the safer choice. wilcox.test() is the non-parametric alternative.
+:::
+
+## ANOVA: three or more groups
+
+Does body mass differ between the three species?
+
+```{r}
+fit_aov <- aov(body_mass_g ~ species, data = penguins)
+summary(fit_aov)
+```
+
+<br>
+
+A small p-value (`Pr(>F)`) says **at least one** species differs. It doesn't say which.
+
+## Which groups differ?
+
+A **post-hoc** test compares every pair, adjusting for doing several tests at once.
+
+```{r}
+emmeans(fit_aov, pairwise ~ species)$contrasts
+```
+
+<br>
+
+Gentoo differ from both other species; Adelie and Chinstrap don't differ clearly.
+
+## Linear regression
+
+How does body mass change with flipper length, accounting for species?
+
+```{r}
+fit_lm <- lm(body_mass_g ~ flipper_length_mm + species, data = penguins)
+```
+
+`tidy()` from the **broom** package turns the result into a table:
+
+```{r}
+tidy(fit_lm, conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high, p.value)
+```
+
+## Reading the coefficients
+
+```{r}
+#| include: false
+co <- tidy(fit_lm, conf.int = TRUE)
+fl <- co[co$term == "flipper_length_mm", ]
+gen <- co[co$term == "speciesGentoo", ]
+```
+
+| Term | Means |
+|---|---|
+| `flipper_length_mm` | Each extra mm of flipper adds about **`r round(fl$estimate, 1)` g**, within a species |
+| `speciesChinstrap`, `speciesGentoo` | Difference from **Adelie** at the same flipper length. Gentoo: **`r round(gen$estimate)` g** heavier |
+| `(Intercept)` | Predicted mass for an Adelie with 0 mm flippers. A math anchor, not a real penguin |
+
+: {tbl-colwidths="[32,68]"}
+
+<br>
+
+Why compared with Adelie? It's the **first factor level**, which becomes the reference group (Pt. 1, factors).
+
+## Check the assumptions
+
+```{r}
+#| fig-width: 11
+#| fig-height: 3.5
+par(mfrow = c(1, 2))
+plot(fit_lm, which = 1:2)
+```
+
+::: {.small}
+**Left:** no curve or funnel shape → the relationship is straight and the spread is even. **Right:** points near the line → residuals are roughly normal.
+:::
+
+## Report it
+
+Give the estimate, its confidence interval, the test statistic and p-value, and the sample size.
+
+> Body mass increased by `r round(fl$estimate, 1)` g per mm of flipper length (95% CI `r round(fl$conf.low, 1)` to `r round(fl$conf.high, 1)`; t(`r fit_lm$df.residual`) = `r round(fl$statistic, 1)`, p < 0.001), controlling for species (n = `r nobs(fit_lm)`).
+
+<br>
+
+Every number in that sentence came from R, not typed by hand. Part 4 shows how to keep it that way.
+
+## Exercise: statistics [5 min]{.timer}
+
+::: {.exercise}
+Do male and female **Gentoo** penguins differ in **flipper length**?
+
+1. Make a data frame of Gentoo penguins with a recorded sex.
+2. Run a t-test.
+3. Write one sentence reporting the result.
+:::
+
+. . .
+
+```{r}
+#| include: false
+gentoo_tt <- t.test(flipper_length_mm ~ sex,
+                    data = filter(penguins, species == "Gentoo", !is.na(sex)))
+```
+
+:::: {.columns}
+::: {.column width="55%"}
+```{r}
+#| eval: false
+gentoo <- penguins |>
+  filter(species == "Gentoo", !is.na(sex))
+
+t.test(flipper_length_mm ~ sex, data = gentoo)
+```
+:::
+::: {.column width="45%"}
+Males' flippers were longer by about **`r round(abs(diff(gentoo_tt$estimate)), 1)` mm** (95% CI `r round(abs(gentoo_tt$conf.int[2]), 1)` to `r round(abs(gentoo_tt$conf.int[1]), 1)` mm; p < 0.001).
+:::
+::::
+
+## Beyond today
+
+| Your data | Model | Package |
+|---|---|---|
+| Repeated measures, people within groups | Mixed model | lme4 |
+| Yes/no outcomes, counts, proportions | Generalized linear model | base R: `glm()` |
+| Curved trends | Generalized additive model | mgcv |
+| Time until an event | Survival analysis | survival |
+
+<br>
+
+Same formula idea throughout: `outcome ~ predictors`.
+
+# Part 4: Reproducible reports {background-color="#006633" .section-slide}
+
+15 minutes
+
+## The copy-paste problem
+
+::: {.incremental}
+- You run the analysis, then **type** the numbers into Word and paste in the figures.
+- A reviewer asks you to drop three outliers.
+- Now every number, table and figure has to be found and fixed by hand. Something gets missed.
+:::
+
+. . .
+
+**Quarto** puts the text, the code and its results in one file. Change the data, click **Render**, and everything updates.
+
+## A Quarto document has three parts
+
+:::: {.columns}
+::: {.column width="33%"}
+**1. Header**: settings
+
+```yaml
+---
+title: "Penguin report"
+author: "Your Name"
+format: html
+---
+```
+:::
+::: {.column width="33%"}
+**2. Text**: written normally
+
+```markdown
+## Results
+
+Gentoo penguins were
+the heaviest species.
+```
+:::
+::: {.column width="34%"}
+**3. Code chunks**: run R
+
+```{{r}}
+fit <- lm(body_mass_g ~
+  species, data = penguins)
+```
+:::
+::::
+
+<br>
+
+File → New File → **Quarto Document**. Click **Render** (Ctrl/Cmd+Shift+K) to produce HTML, Word or PDF.
+
+## Inline code: numbers that write themselves
+
+Put R code inside a sentence with a backtick and `r`:
+
+```markdown
+The study measured `r knitr::inline_expr("nrow(penguins)")` penguins
+of `r knitr::inline_expr("n_distinct(penguins$species)")` species.
+```
+
+When you render, that becomes:
+
+> The study measured `r nrow(penguins)` penguins of `r n_distinct(penguins$species)` species.
+
+<br>
+
+Change the data and re-render, and the sentence updates itself.
+
+## Try it [5 min]{.timer}
+
+::: {.exercise}
+1. File → New File → Quarto Document. Give it a title, untick "Use visual markdown editor", click Create.
+2. Delete the example text. Add a chunk (**Ctrl+Alt+I** / **Cmd+Option+I**) with `library(tidyverse)`, `library(palmerpenguins)` and one plot from today.
+3. Write one sentence with an inline number, such as the number of penguins: `` `r knitr::inline_expr("nrow(penguins)")` ``.
+4. Save it in your project and click **Render**.
+:::
+
+## Make it last
+
+| Tool | What it does | Command |
+|---|---|---|
+| **Quarto** | Report regenerates from code | Render |
+| **renv** | Records the exact package versions you used | `renv::init()`, then `renv::snapshot()` |
+| `sessionInfo()` | Prints R and package versions; put it at the end of reports | `sessionInfo()` |
+| **Git + GitHub** | A history of every change, and a backup | RStudio's Git pane |
+
+<br>
+
+**The test:** restart R, render the report. If it works, your analysis is reproducible.
+
+# Wrap-up {background-color="#006633" .section-slide}
+
+## Take-home project
+
+::: {.exercise}
+In your RStudio Project, write one Quarto report that:
+
+1. Reads `data/raw/penguins_raw.csv` and cleans the column names
+2. Makes one summary table with `group_by()` and `summarise()`
+3. Makes one figure and saves it with `ggsave()`
+4. Runs one statistical test and reports it with inline numbers
+5. Ends with `sessionInfo()`
+
+Restart R and render. If it renders, you're done.
+:::
+
+## Where to go next
+
+- [R for Data Science (2e)](https://r4ds.hadley.nz/): free; covers everything today in more depth, plus joining tables
+- [Posit cheat sheets](https://posit.co/resources/cheatsheets/): one-page references for dplyr, ggplot2 and Quarto
+- [The Carpentries R lessons](https://datacarpentry.org/lessons/): workshop material by field
+- [Quarto guide](https://quarto.org/docs/guide/): documents, slides, websites
+- [Happy Git and GitHub for the useR](https://happygitwithr.com/): setting up version control
+
+<br>
+
+Cite R and its packages in your methods: `citation()` and `citation("emmeans")` print the reference.
+
+## Questions?
