@@ -66,7 +66,7 @@ mean(c(12, 15, 9))   # "give me the average of 12, 15 and 9"
 ::: {.incremental}
 - In a spreadsheet you **click** to get a result, and the clicks are gone.
 - In R you **write down** each step. The steps are saved, so you can rerun, check or share them.
-- That written list of steps is a **script**. It is all "programming" means today.
+- That written list of steps is a **script**. Writing one is all the "programming" you will do today.
 :::
 
 ## R and RStudio are two different things
