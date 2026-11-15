@@ -155,7 +155,8 @@ penguins |>
 # Solution (try it yourself first!)
 penguins |>
   group_by(species) |>
-  summarise(mean_flipper_mm = mean(flipper_length_mm, na.rm = TRUE))
+  summarise(mean_flipper_mm =
+    mean(flipper_length_mm, na.rm = TRUE))
 
 
 # ------------------------------------------------------------

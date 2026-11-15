@@ -719,8 +719,6 @@ Pt. 2 shows how to reshape with `pivot_longer()`.
 ## Exercise: inspect the penguins [5 min]{.timer}
 
 ::: {.exercise}
-Using `penguins`:
-
 1. How many penguins have no recorded sex?
 2. Which island has the most penguins?
 3. What type is the `year` column?
@@ -729,10 +727,25 @@ Using `penguins`:
 . . .
 
 ```{r}
+#| include: false
+top_island <- count(penguins, island, sort = TRUE)[1, ]
+```
+
+:::: {.columns}
+::: {.column width="58%"}
+```{r}
+#| eval: false
 sum(is.na(penguins$sex))
 count(penguins, island, sort = TRUE)
 class(penguins$year)
 ```
+:::
+::: {.column width="42%"}
+1. **`r sum(is.na(penguins$sex))`** penguins
+2. **`r top_island$island`** (`r top_island$n` penguins)
+3. **`r class(penguins$year)`**: whole numbers
+:::
+::::
 
 # Put it together: explore the penguins {background-color="#006633" .section-slide}
 
@@ -773,9 +786,11 @@ Read `|>` as "and then". Pt. 2 explains each piece.
 . . .
 
 ```{r}
+#| output-location: column
 penguins |>
   group_by(species) |>
-  summarise(mean_flipper_mm = mean(flipper_length_mm, na.rm = TRUE))
+  summarise(mean_flipper_mm =
+    mean(flipper_length_mm, na.rm = TRUE))
 ```
 
 ## 3. Your first plot [5 min]{.timer}
