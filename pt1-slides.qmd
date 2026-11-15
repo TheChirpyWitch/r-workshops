@@ -38,9 +38,9 @@ options(width = 95)
 |---|---|---|
 | Intro | What R and RStudio are, and why use them | 10 min |
 | Warm-up | Variables and functions: a knowledge check | 5 min |
-| Part 1 | Setup and RStudio | 20 min |
-| Part 2 | R fundamentals | 40 min |
-| Part 3 | Importing and inspecting data | 25 min |
+| Module 1 | Setup and RStudio | 20 min |
+| Module 2 | R fundamentals | 40 min |
+| Module 3 | Importing and inspecting data | 25 min |
 | Put it together | Explore the penguins | 15 min |
 | Wrap-up | Readiness check, questions | 5 min |
 
@@ -198,7 +198,7 @@ In R: **name of the function**, then inputs in round brackets. The inputs are ca
 2. Function `sqrt` (square root), input 16, output 4
 3. **5**. Read it as "take the old price, add 1, store it back as price". In math, x = x + 1 is impossible; in R, `<-` means *store*, not *equals*.
 
-# Part 1: Setup and RStudio {background-color="#006633" .section-slide}
+# Module 1: Setup and RStudio {background-color="#006633" .section-slide}
 
 20 minutes
 
@@ -281,7 +281,7 @@ The objects you create while working, listed in the **Environment** pane.
 Keep all the files for one analysis in **one folder**. R then knows where to find them, and nothing gets lost on your Desktop or in Downloads.
 
 ::: notes
-Ask: where do your data files live right now? Most people will say Desktop, Downloads, or email attachments. That's the problem a project folder solves. We come back to the Memory side in Part 2.
+Ask: where do your data files live right now? Most people will say Desktop, Downloads, or email attachments. That's the problem a project folder solves. We come back to the Memory side in Module 2.
 :::
 
 ## The working directory
@@ -405,7 +405,7 @@ read_csv("file.csv")
 Why `here()` and not just `"data/raw/file.csv"`? Quarto reports and scripts in subfolders can start in a different folder. `here()` always starts at the project.
 :::
 
-# Part 2: R fundamentals {background-color="#006633" .section-slide}
+# Module 2: R fundamentals {background-color="#006633" .section-slide}
 
 40 minutes
 
@@ -608,7 +608,7 @@ mean(bills, na.rm = TRUE)
 sum(bills > 40, na.rm = TRUE)
 ```
 
-# Part 3: Importing and inspecting data {background-color="#006633" .section-slide}
+# Module 3: Importing and inspecting data {background-color="#006633" .section-slide}
 
 25 minutes
 
@@ -754,7 +754,7 @@ class(penguins$year)
 ## 1. Who lives where? [5 min]{.timer}
 
 ::: {.exercise}
-You know `count()` from Part 3. Count penguins by **island and species** together.
+You know `count()` from Module 3. Count penguins by **island and species** together.
 Which species live on only one island?
 :::
 

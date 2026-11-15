@@ -39,10 +39,10 @@ options(width = 80, pillar.print_min = 5)
 | Segment | Topic | Time |
 |---|---|---|
 | Recap | Pt. 1 in five minutes | 5 min |
-| Part 1 | Wrangling: reshaping and summarising data | 30 min |
-| Part 2 | Figures with ggplot2 | 30 min |
-| Part 3 | Statistics: t-test, ANOVA, regression | 35 min |
-| Part 4 | Reproducible reports with Quarto | 15 min |
+| Module 1 | Wrangling: reshaping and summarising data | 30 min |
+| Module 2 | Figures with ggplot2 | 30 min |
+| Module 3 | Statistics: t-test, ANOVA, regression | 35 min |
+| Module 4 | Reproducible reports with Quarto | 15 min |
 | Wrap-up | Take-home project, questions | 5 min |
 
 ::: {.muted .small}
@@ -103,7 +103,7 @@ mean(penguins$body_mass_g, na.rm = TRUE)
 
 `$` pulls one column out of a table: `table$column`. Today you'll mostly refer to columns **by name** inside functions instead.
 
-# Part 1: Wrangling data {background-color="#006633" .section-slide}
+# Module 1: Wrangling data {background-color="#006633" .section-slide}
 
 30 minutes
 
@@ -262,7 +262,7 @@ names(clean)[10:13]
 `janitor::clean_names()` means "the `clean_names` function from the janitor package", without loading the whole package with `library()`.
 :::
 
-# Part 2: Figures with ggplot2 {background-color="#006633" .section-slide}
+# Module 2: Figures with ggplot2 {background-color="#006633" .section-slide}
 
 30 minutes
 
@@ -416,7 +416,7 @@ penguins |>
   labs(x = NULL, y = "Bill depth (mm)")
 ```
 
-# Part 3: Statistics {background-color="#006633" .section-slide}
+# Module 3: Statistics {background-color="#006633" .section-slide}
 
 35 minutes
 
@@ -546,7 +546,7 @@ Give the estimate, its confidence interval, the test statistic and p-value, and 
 
 <br>
 
-Every number in that sentence came from R, not typed by hand. Part 4 shows how to keep it that way.
+Every number in that sentence came from R, not typed by hand. Module 4 shows how to keep it that way.
 
 ## Exercise: statistics [5 min]{.timer}
 
@@ -594,7 +594,7 @@ Males' flippers were longer by about **`r round(abs(diff(gentoo_tt$estimate)), 1
 
 Same formula idea throughout: `outcome ~ predictors`.
 
-# Part 4: Reproducible reports {background-color="#006633" .section-slide}
+# Module 4: Reproducible reports {background-color="#006633" .section-slide}
 
 15 minutes
 
