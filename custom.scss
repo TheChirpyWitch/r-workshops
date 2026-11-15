@@ -1,0 +1,115 @@
+/*-- scss:defaults --*/
+$font-family-sans-serif: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+$font-family-monospace: "Source Code Pro", Menlo, monospace;
+$presentation-font-size-root: 34px;
+$body-color: #1f2328;
+$link-color: #006633;
+$presentation-heading-color: #00482a;
+$presentation-heading-font-weight: 600;
+$code-block-font-size: 0.72em;
+
+/*-- scss:rules --*/
+.reveal .slide-title-bar { border-bottom: 3px solid #006633; }
+
+.reveal h2 {
+  border-bottom: 3px solid #006633;
+  padding-bottom: 0.15em;
+  margin-bottom: 0.6em;
+}
+
+/* Section divider slides */
+.reveal section.section-slide h1,
+.reveal section.section-slide h2 {
+  border-bottom: none;
+  color: #ffffff;
+}
+.reveal section.section-slide p { color: #e8f3ec; }
+
+/* "Switch to RStudio" cue */
+.live {
+  display: inline-block;
+  background: #fff4cc;
+  border-left: 6px solid #e0a800;
+  padding: 0.3em 0.8em;
+  font-weight: 600;
+  margin-top: 0.4em;
+}
+
+/* Exercise slides */
+.exercise {
+  background: #eaf5ee;
+  border-left: 6px solid #006633;
+  padding: 0.5em 0.9em;
+}
+
+.timer {
+  float: right;
+  font-size: 0.8em;
+  font-weight: 700;
+  color: #006633;
+  border: 2px solid #006633;
+  border-radius: 999px;
+  padding: 0.05em 0.6em;
+}
+
+.small { font-size: 0.75em; }
+.muted { color: #5f6b72; }
+
+.reveal table { font-size: 0.72em; }
+.reveal table th { background: #eaf5ee; }
+
+/* Footer and slide number readable on green section slides */
+.reveal.has-dark-background .footer p,
+.reveal.has-dark-background .slide-number { color: #e8f3ec !important; }
+
+/* Inline code: readable size, on-palette colour */
+.reveal :not(pre) > code {
+  font-size: 0.85em;
+  color: #00482a;
+  background: #f0f4f1;
+  padding: 0.05em 0.25em;
+  border-radius: 4px;
+}
+.reveal h2 code { background: none; color: inherit; padding: 0; }
+.reveal table td code { font-size: 0.9em; }
+
+/* RStudio pane mock-up */
+.panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  height: 380px;
+  font-size: 0.72em;
+}
+.pane {
+  border: 2px solid #b9cfc0;
+  border-radius: 8px;
+  padding: 0.5em 0.7em;
+  background: #fafcfb;
+}
+.pane strong { display: block; color: #00482a; font-size: 1.1em; }
+.pane.main { border-color: #006633; background: #eaf5ee; }
+
+.good, .bad { font-weight: 700; font-size: 0.8em; }
+.good { color: #006633; }
+.bad { color: #b42318; }
+
+/* Engine / dashboard comparison */
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 0.4em; }
+.duo > div {
+  border: 2px solid #b9cfc0; border-radius: 10px;
+  padding: 0.6em 0.9em; background: #fafcfb; font-size: 0.8em;
+}
+.duo > div.accent { border-color: #006633; background: #eaf5ee; }
+.duo .big { display: block; font-size: 1.6em; font-weight: 700; color: #00482a; }
+
+/* Input -> function -> output flow */
+.flow { display: flex; align-items: center; gap: 14px; margin: 0.5em 0; font-size: 0.8em; }
+.flow .box {
+  border: 2px solid #b9cfc0; border-radius: 10px; background: #fafcfb;
+  padding: 0.35em 0.8em; text-align: center; min-width: 6.5em;
+}
+.flow .box.fn { border-color: #006633; background: #eaf5ee; font-weight: 700; color: #00482a; }
+.flow .arrow { font-size: 1.4em; color: #5f6b72; }
+.flow .lbl { display: block; font-size: 0.7em; font-weight: 400; color: #5f6b72; }

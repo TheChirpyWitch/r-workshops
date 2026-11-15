@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R &amp; RStudio Workshops</title>
+<style>
+  :root { --green: #006633; --ink: #1f2328; --muted: #5f6b72; --line: #d6e3da; --bg: #ffffff; --card: #f6faf7; }
+  @media (prefers-color-scheme: dark) {
+    :root { --green: #5fc48a; --ink: #e6edf3; --muted: #9aa7b0; --line: #2d3b33; --bg: #111614; --card: #18201b; }
+  }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 17px/1.55 "Source Sans Pro", "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px; }
+  h1 { color: var(--green); margin: 0 0 4px; font-size: 2rem; }
+  .sub { color: var(--muted); margin: 0 0 32px; }
+  .card { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 6px; font-size: 1.2rem; }
+  .card p { margin: 0 0 12px; color: var(--muted); }
+  a.btn { display: inline-block; margin: 0 8px 6px 0; padding: 6px 14px; border-radius: 999px;
+          border: 2px solid var(--green); color: var(--green); text-decoration: none; font-weight: 600; }
+  a.btn.primary { background: var(--green); color: var(--bg); }
+  .soon { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<main>
+  <h1>R &amp; RStudio Workshops</h1>
+  <p class="sub">Hands-on introductions to R for researchers. No programming experience needed.</p>
+
+  <div class="card">
+    <h2>Pt. 1: Basics</h2>
+    <p>What R and RStudio are, setting up a project, R fundamentals, and importing your first dataset.</p>
+    <a class="btn primary" href="pt1-slides.html">Open slides</a>
+    <a class="btn" href="pt1-code.R" download>Download code (.R)</a>
+  </div>
+
+  <div class="card">
+    <h2>Pt. 2: Analysis and reporting</h2>
+    <p class="soon">Coming soon: wrangling, figures, statistics and Quarto reports.</p>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,849 @@
+---
+title: "R & RStudio Basics"
+subtitle: "Workshop Pt. 1: from zero to your first dataset"
+author: "Vrinda Malhotra"
+date: today
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    slide-number: c/t
+    progress: true
+    hash-type: number
+    navigation-mode: linear
+    code-line-numbers: false
+    code-copy: true
+    highlight-style: github
+    width: 1280
+    height: 720
+    footer: "R & RStudio Basics · Pt. 1"
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(palmerpenguins)
+theme_set(theme_classic(base_size = 18))
+options(width = 95)
+```
+
+## Today
+
+| Segment | Topic | Time |
+|---|---|---|
+| Intro | What R and RStudio are, and why use them | 10 min |
+| Warm-up | Variables and functions: a knowledge check | 5 min |
+| Part 1 | Setup and RStudio | 20 min |
+| Part 2 | R fundamentals | 40 min |
+| Part 3 | Importing and inspecting data | 25 min |
+| Put it together | Explore the penguins | 15 min |
+| Wrap-up | Readiness check, questions | 5 min |
+
+::: {.muted .small}
+All of today's code in one file: [pt1-code.R](pt1-code.R){download="pt1-code.R"} · Pt. 2 covers wrangling, figures, statistics and reproducible reports.
+:::
+
+# Intro: what are R and RStudio? {background-color="#006633" .section-slide}
+
+No programming experience needed
+
+## What is R?
+
+R is a **language for working with data**. You write short instructions; R carries them out.
+
+```{r}
+#| eval: false
+mean(c(12, 15, 9))   # "give me the average of 12, 15 and 9"
+```
+
+<br>
+
+::: {.incremental}
+- In a spreadsheet you **click** to get a result, and the clicks are gone.
+- In R you **write down** each step. The steps are saved, so you can rerun, check or share them.
+- That written list of steps is a **script**. It is all "programming" means today.
+:::
+
+## R and RStudio are two different things
+
+::: {.duo}
+::: {}
+[R]{.big}
+The **engine**. It does the calculations. You rarely open it directly.
+:::
+::: {.accent}
+[RStudio]{.big}
+The **dashboard**. A program for writing, running and organizing R code, with panes for your data, plots and help.
+:::
+:::
+
+<br>
+
+You install both, but you only ever open **RStudio**. It runs R for you behind the scenes.
+
+::: notes
+Car analogy: R is the engine, RStudio is the dashboard and steering wheel. Both are free. RStudio is made by a company called Posit.
+:::
+
+## You already do this in a spreadsheet
+
+| What you want | Spreadsheet | R |
+|---|---|---|
+| Average a column | `=AVERAGE(B2:B345)` | `mean(body_mass_g)` |
+| Keep some rows | Filter menu, tick boxes | `filter(species == "Gentoo")` |
+| Sort | Sort button | `arrange(body_mass_g)` |
+| Make a chart | Chart wizard | `ggplot(...)` |
+| Redo it all on new data | Repeat every click | **Rerun the script** |
+
+<br>
+
+If you've written a spreadsheet formula, you've already written code.
+
+## Why R?
+
+::: {.incremental}
+- **Reproducible.** Your analysis is a script. Rerun it and get the same answer, or point it at new data.
+- **Free and open.** No licence, runs on every OS, used across every research field.
+- **Huge ecosystem.** 20,000+ packages on CRAN for statistics, figures, text, maps, surveys, genomics.
+- **A record of what you did.** Reviewers, collaborators and future-you can see every step.
+:::
+
+::: notes
+Ask the room: who uses Excel, SPSS, Stata, Prism? Frame R as the same work, written down.
+:::
+
+## What to expect today
+
+- **It will feel slower than clicking at first.** The payoff comes the second time you run an analysis.
+- **Errors are normal**, even for experts. Each one tells you what to fix, and we'll practise reading them.
+- **Type along** rather than copy-paste. Your fingers learn the syntax.
+- **Ask anytime.** If you're stuck, someone else is too.
+
+# Warm-up: variables and functions {background-color="#006633" .section-slide}
+
+Two ideas you already know, from math and from everyday life
+
+## Quick check
+
+In math class you saw:
+
+$$y = 2x + 3$$
+
+::: {.incremental}
+- What is **x**?
+- If x = 4, what is **y**?
+- What is the **rule** that turns x into y?
+:::
+
+::: notes
+Ask for answers from the room. x is a variable (a name for a number); y = 11; the rule "double it and add 3" is a function. Everything in R is built from these two ideas.
+:::
+
+## Variables: a name that stands for a value
+
+| | Example | The name | The value |
+|---|---|---|---|
+| **Math** | x = 5, so x + 2 = 7 | `x` | 5 |
+| **Everyday** | A contact in your phone called "Mom" | Mom | her phone number |
+| **R** | `x <- 5`, then `x + 2` gives 7 | `x` | 5 |
+
+: {tbl-colwidths="[14,46,20,20]"}
+
+<br>
+
+::: {.incremental}
+- You use the **name**; R looks up the **value**.
+- In R a variable is called an **object**, and `<-` means "store this value under this name".
+- Unlike in math, the value can be **replaced**: `x <- 10` puts a new number under the same name, like updating Mom's number.
+:::
+
+## Functions: input → rule → output
+
+| | Example | Input | Output |
+|---|---|---|---|
+| **Math** | f(x) = 2x + 3, so f(4) | 4 | 11 |
+| **Everyday** | A coffee machine | beans, water, "large" | a large coffee |
+| **R** | `round(3.14159, digits = 2)` | 3.14159 and 2 | 3.14 |
+
+: {tbl-colwidths="[14,46,20,20]"}
+
+```{=html}
+<div class="flow">
+  <div class="box">3.14159, 2<span class="lbl">inputs</span></div>
+  <div class="arrow">→</div>
+  <div class="box fn">round()<span class="lbl">function</span></div>
+  <div class="arrow">→</div>
+  <div class="box">3.14<span class="lbl">output</span></div>
+</div>
+```
+
+In R: **name of the function**, then inputs in round brackets. The inputs are called **arguments**.
+
+## Knowledge check [3 min]{.timer}
+
+::: {.exercise}
+1. In `height <- 172`, what is the name and what is the value?
+2. In `sqrt(16)`, what is the function, the input, and the output?
+3. After `price <- 4` and then `price <- price + 1`, what is `price`?
+:::
+
+. . .
+
+1. Name `height`, value 172
+2. Function `sqrt` (square root), input 16, output 4
+3. **5**. Read it as "take the old price, add 1, store it back as price". In math, x = x + 1 is impossible; in R, `<-` means *store*, not *equals*.
+
+# Part 1: Setup and RStudio {background-color="#006633" .section-slide}
+
+20 minutes
+
+## Install R, then RStudio
+
+1. **R** from [cran.r-project.org](https://cran.r-project.org/): the engine
+2. **RStudio Desktop** from [posit.co](https://posit.co/download/rstudio-desktop/): the dashboard
+
+<br>
+
+Then open **RStudio** (not R).
+
+::: notes
+Common snag: Windows users without admin rights. Anyone who installed beforehand can explore the RStudio window while others catch up.
+:::
+
+## The four panes
+
+::: {.panes}
+::: {.pane .main}
+**Source**
+Scripts you save. Your analysis lives here.
+:::
+::: {.pane}
+**Environment**
+Objects currently in memory.
+:::
+::: {.pane}
+**Console**
+Runs code immediately. Quick checks only.
+:::
+::: {.pane}
+**Files · Plots · Packages · Help**
+File browser, figures, installed packages, documentation.
+:::
+:::
+
+
+Run a line from a script: **Ctrl+Enter** (Windows) · **Cmd+Enter** (Mac)
+
+## Install the packages
+
+**Packages** are free add-ons that give R extra tools, like apps on a phone.
+Install the ones we need by typing this into the **Console** and pressing Enter:
+
+```{r}
+#| eval: false
+install.packages(c("tidyverse", "palmerpenguins", "here",
+                   "broom", "car", "emmeans", "janitor", "Hmisc",
+                   "patchwork", "quarto", "renv"))
+```
+
+<br>
+
+Text will scroll by for a few minutes. That's normal. Red text isn't always an error; look for the word **Error**.
+
+::: notes
+Installs take 3–5 minutes. Start them now and move on to Projects while they run. macOS users may need Xcode command line tools for some packages.
+:::
+
+## Your workspace
+
+Everything you work with in an analysis lives in one of two places:
+
+::: {.duo}
+::: {.accent}
+[Files]{.big}
+Saved on your computer, in a folder: your data, your scripts, your figures.
+**Permanent.** Still there tomorrow.
+:::
+::: {}
+[Memory]{.big}
+The objects you create while working, listed in the **Environment** pane.
+**Temporary.** Gone when you close or restart R.
+:::
+:::
+
+<br>
+
+Keep all the files for one analysis in **one folder**. R then knows where to find them, and nothing gets lost on your Desktop or in Downloads.
+
+::: notes
+Ask: where do your data files live right now? Most people will say Desktop, Downloads, or email attachments. That's the problem a project folder solves. We come back to the Memory side in Part 2.
+:::
+
+## The working directory
+
+R is always "standing in" one folder: the **working directory**.
+When you name a file, R looks for it there.
+
+```{r}
+#| eval: false
+getwd()                    # "get working directory": where is R standing?
+#> "/Users/you/Documents"
+
+read_csv("penguins.csv")   # looks for /Users/you/Documents/penguins.csv
+#> Error: 'penguins.csv' does not exist in current working directory
+#> ('/Users/you/Documents').
+```
+
+::: {.live}
+→ Type `getwd()` in your Console. Where is R standing?
+:::
+
+::: notes
+The Files pane shows the same folder. Most people will see their home or Documents folder. That error message is one of the most common beginner errors; now they know what it means.
+:::
+
+## Two kinds of file path
+
+| Path | Example | Like… | Works on |
+|---|---|---|---|
+| **Absolute**: the full address | `"/Users/you/Desktop/project/data/penguins.csv"` | A full street address | Only your computer |
+| **Relative**: starts from the working directory | `"data/penguins.csv"` | "Second door on the left" | Any computer, if R is standing in the right folder |
+
+<br>
+
+Relative paths are portable, but only if R starts in the right folder. So how do we set it?
+
+## Setting the working directory
+
+Three ways, from least to most reproducible:
+
+1. **In code:** `setwd("/Users/you/Desktop/project")`
+2. **From the menu:** Session → Set Working Directory → Choose Directory…
+3. **Open an RStudio Project:** the working directory is set to the project folder automatically ✓
+
+<br>
+
+Options 1 and 2 work today, on your computer. Option 3 works on anyone's computer, every time.
+
+::: notes
+Option 2 leaves no record in the script, so a collaborator won't know where you were standing. Option 1 records it, but with an address that only exists on your machine (next slides).
+:::
+
+## One RStudio Project per analysis
+
+An **RStudio Project** is one folder for one analysis. Opening it sets the working directory to that folder, so relative paths just work.
+
+File → New Project → New Directory
+
+```
+penguin-analysis/
+├── penguin-analysis.Rproj   # double-click to open the project
+├── data/
+│   ├── raw/          # never edited
+│   └── processed/    # written by your scripts
+├── R/                # analysis scripts
+├── figures/
+└── report.qmd
+```
+
+::: {.live}
+→ Switch to RStudio: create this project together, then run `getwd()` again
+:::
+
+## Why not just use `setwd()`?
+
+Your script, run on a collaborator's laptop:
+
+```{r}
+#| eval: false
+setwd("C:/Users/me/Desktop/project")
+#> Error in setwd("C:/Users/me/Desktop/project"): cannot change working directory
+```
+
+<br>
+
+- That folder doesn't exist on their computer.
+- It breaks for **you** too if you rename the folder, move it, or get a new laptop.
+- With a Project, there's nothing to set: whoever opens the `.Rproj` starts in the right place.
+
+## `here()`: paths from the project folder
+
+`here()` builds a path starting from the project folder, wherever your script sits inside it.
+
+```{r}
+#| eval: false
+library(here)
+here("data", "raw", "penguins_raw.csv")
+#> "/Users/you/penguin-analysis/data/raw/penguins_raw.csv"
+```
+
+:::: {.columns}
+::: {.column width="50%"}
+[Do]{.good}
+
+```r
+# open penguin-analysis.Rproj, then:
+read_csv(here("data", "raw", "file.csv"))
+```
+:::
+::: {.column width="50%"}
+[Don't]{.bad}
+
+```r
+setwd("C:/Users/me/Desktop/project")
+read_csv("file.csv")
+```
+:::
+::::
+
+::: {.small .muted}
+Why `here()` and not just `"data/raw/file.csv"`? Quarto reports and scripts in subfolders can start in a different folder. `here()` always starts at the project.
+:::
+
+# Part 2: R fundamentals {background-color="#006633" .section-slide}
+
+40 minutes
+
+## Objects and assignment
+
+Remember variables from the warm-up? In R they're **objects**, created with `<-` (shortcut: **Alt + –**).
+
+```{r}
+mass_g <- 3750
+species <- "Adelie"
+mass_kg <- mass_g / 1000
+mass_kg
+```
+
+::: {.live}
+→ Switch to RStudio: open a new script (File → New File → R Script)
+:::
+
+## Vectors: R's basic unit
+
+A vector holds values of one type. Operations apply to **every element at once**.
+
+```{r}
+masses <- c(3750, 3800, 3250, NA, 3450)
+masses / 1000
+masses[2]               # the 2nd value: counting starts at 1
+masses[c(1, 3)]         # the 1st and 3rd values
+```
+
+## Data types you'll meet
+
+| Type | Example | Research use |
+|---|---|---|
+| numeric | `3.75` | Measurements, scores |
+| integer | `12L` | Counts |
+| character | `"Biscoe"` | Labels, IDs, free text |
+| logical | `TRUE`, `FALSE` | Conditions, filters |
+| factor | `factor(c("low", "high"))` | Groups, treatments |
+| Date | `as.Date("2026-11-15")` | Collection dates |
+
+Check any object with `class(x)`.
+
+## Factors: categories with an order
+
+```{r}
+dose <- factor(c("high", "low", "medium", "low"))
+levels(dose)            # alphabetical by default
+
+dose <- factor(dose, levels = c("low", "medium", "high"))
+levels(dose)            # now in a meaningful order
+```
+
+<br>
+
+The **first level is the reference group** in statistical models, and sets the order in plots. Set it on purpose.
+
+## Missing values: `NA`
+
+R won't silently drop data.
+
+```{r}
+mean(masses)
+mean(masses, na.rm = TRUE)
+sum(is.na(masses))
+```
+
+<br>
+
+Always report how many observations you dropped, and why.
+
+## Conditions: yes-or-no questions
+
+A **condition** asks a question. R answers `TRUE` or `FALSE`, once for every value.
+
+| | Example |
+|---|---|
+| **Everyday** | "Which days this week were warmer than 24 °C?" |
+| **Spreadsheet** | Filter → Number filters → Greater than… |
+| **R** | `temps > 24` |
+
+: {tbl-colwidths="[25,75]"}
+
+```{r}
+temps <- c(18, 25, 31, 22, 29)   # daily highs, °C
+temps > 24
+```
+
+## Asking questions in R
+
+| Operator | Question | Example | Answer |
+|---|---|---|---|
+| `>` `<` | greater / less than? | `5 > 3` | `TRUE` |
+| `>=` `<=` | at least / at most? | `5 <= 3` | `FALSE` |
+| `==` | equal to? | `"Adelie" == "Gentoo"` | `FALSE` |
+| `!=` | not equal to? | `"Adelie" != "Gentoo"` | `TRUE` |
+| `&` | both true? | `temps > 20 & temps < 30` | per value |
+| `|` | either true? | `temps < 20 | temps > 30` | per value |
+
+<br>
+
+Watch out: `==` **asks** "is it equal?". `<-` **stores** a value. Mixing them up is the most common beginner slip.
+
+## Using conditions
+
+```{r}
+temps[temps > 24]                # keep the values where the answer is TRUE
+sum(temps > 24)                  # TRUE counts as 1: how many warm days?
+mean(temps > 24)                 # share of days that were warm
+```
+
+. . .
+
+A missing value gives a missing answer, so tell R what to do with it:
+
+```{r}
+masses > 3500
+sum(masses > 3500, na.rm = TRUE)
+```
+
+::: notes
+Pt. 2's filter() is this same idea applied to rows of a table: filter(penguins, body_mass_g > 3500).
+:::
+
+## Functions and packages
+
+From the warm-up: a function takes inputs (**arguments**) and returns an output.
+
+```{r}
+round(3.14159, digits = 2)
+```
+
+A package bundles functions.
+
+```{r}
+#| eval: false
+install.packages("palmerpenguins")   # once per computer
+library(palmerpenguins)              # once per session
+```
+
+## Getting help
+
+- `?mean`: help page; scroll to **Examples** at the bottom
+- `??regression`: search every installed help page
+- Read errors **from the end**: the last line names the problem
+- Asking others? Make a minimal example with the `reprex` package
+
+```{r}
+#| eval: false
+?mean
+```
+
+## Where does your work live? [5 min]{.timer}
+
+::: {.exercise}
+1. Save your script: **Ctrl+S** / **Cmd+S**.
+2. Look at the Environment pane. Every object you made is listed.
+3. Restart R: **Session → Restart R**. What happened to the Environment?
+4. Rerun your whole script: **Ctrl+Shift+Enter** / **Cmd+Shift+Enter**.
+:::
+
+. . .
+
+Everything came back. **Your script is your backup, not what's in memory.**
+
+- Objects in memory are temporary; the steps in your script rebuild them.
+- Protect the script: save often, and keep the project in a backed-up folder (OneDrive, Google Drive, Dropbox). Pt. 2 adds version control.
+
+::: notes
+Let them discover it. Before step 4 ask: "If you hadn't saved the script, what would you have lost?" The answer they reach is the point of the slide.
+:::
+
+## Optional: start every session clean
+
+When you quit, RStudio asks **"Save workspace image?"** That's the **Memory** side of your workspace: the objects, not the steps that made them.
+
+Many R users turn it off so nothing works only because of leftovers in memory:
+
+Tools → Global Options → General
+
+- **Restore .RData into workspace at startup:** unchecked
+- **Save workspace to .RData on exit:** Never
+
+::: {.small .muted}
+Your choice. If you leave it on, restart R and rerun your script before you trust a result.
+:::
+
+## Exercise: vectors [5 min]{.timer}
+
+::: {.exercise}
+1. Create a vector of five bill lengths (mm), one of them `NA`.
+2. Compute the mean, ignoring the missing value.
+3. Count how many values are above 40 mm.
+:::
+
+. . .
+
+```{r}
+bills <- c(39.1, 39.5, NA, 46.5, 50.0)
+mean(bills, na.rm = TRUE)
+sum(bills > 40, na.rm = TRUE)
+```
+
+# Part 3: Importing and inspecting data {background-color="#006633" .section-slide}
+
+25 minutes
+
+## Meet the penguins
+
+Our practice data, from the `palmerpenguins` package:
+
+- **344 penguins**, 3 species: Adelie, Chinstrap, Gentoo
+- Collected on 3 islands near Palmer Station, Antarctica, 2007–2009
+- One row per penguin: bill length and depth, flipper length, body mass, sex, island, year
+- Two versions: `penguins` (cleaned) and `penguins_raw` (as recorded in the field, messy column names)
+
+::: notes
+Data collected by Dr. Kristen Gorman and the Palmer Station Long Term Ecological Research program. Ask: what would the equivalent be in your own field?
+:::
+
+## Read a CSV
+
+Inside your project, save the raw data, then read it back like a real file:
+
+```{r}
+#| eval: false
+library(tidyverse)
+library(palmerpenguins)
+library(here)
+
+dir.create(here("data", "raw"), recursive = TRUE, showWarnings = FALSE)
+write_csv(penguins_raw, here("data", "raw", "penguins_raw.csv"))
+
+penguins_raw <- read_csv(here("data", "raw", "penguins_raw.csv"))
+```
+
+<br>
+
+`read_csv()` reports the type it guessed for each column. **Read that message.**
+A number column read as text usually means a stray `"n/a"` or `"<0.1"`.
+
+::: notes
+Pt. 2 starts from this file, so make sure everyone has it before they leave.
+:::
+
+## First look: `glimpse()`
+
+```{r}
+glimpse(penguins, width = 70)
+```
+
+## First look: `summary()` and `count()`
+
+:::: {.columns}
+::: {.column width="55%"}
+```{r}
+summary(penguins$body_mass_g)
+```
+:::
+::: {.column width="45%"}
+```{r}
+count(penguins, island)
+```
+:::
+::::
+
+Also try `head(penguins)` and `View(penguins)`.
+
+## Other formats
+
+| Source | Function | Package |
+|---|---|---|
+| CSV | `read_csv()` | readr |
+| Tab-delimited / instrument output | `read_tsv()`, `read_delim()` | readr |
+| Excel | `read_excel(path, sheet = 2)` | readxl |
+| SPSS, Stata, SAS | `read_sav()`, `read_dta()`, `read_sas()` | haven |
+
+<br>
+
+Tell R which codes mean missing:
+`read_csv(path, na = c("", "NA", "n/a", "-999"))`
+
+## Tidy data
+
+Each **variable** is a column · each **observation** is a row · each **value** is a cell.
+
+:::: {.columns}
+::: {.column width="50%"}
+[Wide: "week" is hidden in the column names]{.bad}
+
+```{r}
+#| echo: false
+wide <- data.frame(id = 1:2, week1 = c(5.1, 4.8), week2 = c(5.6, 5.0))
+print(wide, row.names = FALSE)
+```
+:::
+::: {.column width="50%"}
+[Tidy: one row per measurement]{.good}
+
+```{r}
+#| echo: false
+long <- as.data.frame(pivot_longer(wide, -id, names_to = "week", values_to = "score"))
+print(long, row.names = FALSE)
+```
+:::
+::::
+
+::: {.small .muted}
+Pt. 2 shows how to reshape with `pivot_longer()`.
+:::
+
+## Exercise: inspect the penguins [5 min]{.timer}
+
+::: {.exercise}
+Using `penguins`:
+
+1. How many penguins have no recorded sex?
+2. Which island has the most penguins?
+3. What type is the `year` column?
+:::
+
+. . .
+
+```{r}
+sum(is.na(penguins$sex))
+count(penguins, island, sort = TRUE)
+class(penguins$year)
+```
+
+# Put it together: explore the penguins {background-color="#006633" .section-slide}
+
+15 minutes · run the code, then change it
+
+## 1. Who lives where? [5 min]{.timer}
+
+::: {.exercise}
+You know `count()` from Part 3. Count penguins by **island and species** together.
+Which species live on only one island?
+:::
+
+. . .
+
+```{r}
+count(penguins, island, species)
+```
+
+Gentoo live only on Biscoe and Chinstrap only on Dream; Adelie live on all three islands.
+
+## 2. Averages per group [5 min]{.timer}
+
+::: {.exercise}
+Run this, then change it to give the mean **flipper length** per species.
+:::
+
+```{r}
+#| eval: false
+penguins |>
+  group_by(species) |>
+  summarise(mean_mass_g = mean(body_mass_g, na.rm = TRUE))
+```
+
+::: {.small .muted}
+Read `|>` as "and then". Pt. 2 explains each piece.
+:::
+
+. . .
+
+```{r}
+penguins |>
+  group_by(species) |>
+  summarise(mean_flipper_mm = mean(flipper_length_mm, na.rm = TRUE))
+```
+
+## 3. Your first plot [5 min]{.timer}
+
+::: {.exercise}
+Run this, then put **bill length** on the x-axis. Do the species still separate?
+:::
+
+```{r}
+#| eval: false
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point()
+```
+
+. . .
+
+```{r}
+#| output-location: column
+#| fig-width: 6
+#| fig-height: 3.2
+ggplot(penguins,
+       aes(x = bill_length_mm,
+           y = body_mass_g,
+           colour = species)) +
+  geom_point()
+```
+
+## What you just did
+
+::: {.incremental}
+- A few lines replaced a pivot table, a chart wizard, and notes on how you made them.
+- Get new data next year? **Rerun the script.** Every number and figure updates.
+- Pt. 2 teaches each piece so you can write these from scratch.
+:::
+
+# Wrap-up {background-color="#006633" .section-slide}
+
+## Ready for Pt. 2?
+
+- ☐ R and RStudio installed; every package installed without errors
+- ☐ Your script is saved in the project and reruns cleanly after **Session → Restart R**
+- ☐ An RStudio Project with `data/`, `R/` and `figures/`
+- ☐ `data/raw/penguins_raw.csv` exists inside it
+- ☐ `glimpse(penguins)` runs, and you can name each column's type
+
+<br>
+
+Package won't install? Show the instructor before you leave.
+
+## Errors you'll see this week
+
+| Message | Fix |
+|---|---|
+| `could not find function "ggplot"` | `library(tidyverse)` |
+| `there is no package called 'x'` | `install.packages("x")` |
+| `object 'x' not found` | Check spelling and case; run the script from the top |
+| `cannot open file ... No such file` | Open the `.Rproj`; build paths with `here()` |
+| A `+` in the Console that won't go away | Press **Esc**, fix the line |
+
+## Next time and resources
+
+**Pt. 2:** wrangling with dplyr · figures with ggplot2 · t-tests, ANOVA, regression · Quarto reports
+
+- [R for Data Science (2e)](https://r4ds.hadley.nz/): free, the standard next step
+- [Posit cheat sheets](https://posit.co/resources/cheatsheets/): one-page references
+- [The Carpentries R lessons](https://datacarpentry.org/lessons/): workshop material by field
+- [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/): Horst, Hill & Gorman (2020)
+
+<br>
+
+### Questions?
